@@ -51,3 +51,9 @@ class SoftmaxClassifier(object):
         self._x = tf.placeholder(tf.float32, shape=[vec_size], name="model_x")
         self._y = tf.placeholder(tf.float32, shape=[class_size], name="model_y")
         inputs = self._x
+
+        softmax_w = tf.get_variable("softmax_w", [vec_size, class_size])
+        softmax_b = tf.get_variable("softmax_b", [class_size])
+
+        y = tf.matmul(inputs, softmax_w) + softmax_b
+        self.y = tf.nn.softmax(y)
