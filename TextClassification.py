@@ -2,6 +2,8 @@ import numpy as np
 import tensorflow as tf
 import sys
 import os
+import string
+
 
 WORD_VECTOR = {}
 flags = tf.flags
@@ -11,12 +13,13 @@ flags.DEFINE_string("train_data_path", None, "train_data_path")
 flags.DEFINE_string("test_data_path", None, "test_data_path")
 FLAGS = flags.FLAGS
 
+VEC_SIZE = 300
 
 class Config(object):
     init_scale = 0.05
     learning_rate = 1.0
     max_grad_norm = 5
-    vec_size = 200
+    vec_size = VEC_SIZE
     max_epoch = 6
     max_max_epoch = 59
     keep_prob = 0.5
@@ -95,18 +98,25 @@ def read_vector_file(filename):
 
 def get_vector(w):
     try:
-        return word_vector[w]
+        return WORD_VECTOR[w]
     except KeyError:
-        return np.zeros(200)
+        return np.zeros(VEC_SIZE)
     except:
         print "Unexpected error:", sys.exc_info()[0]
-        return np.zeros(200)
+        return np.zeros(VEC_SIZE)
 
 
 def get_text_avg_vector(text):
     # TODO: get the average vectors of the words in the input text
-    # Be careful with the COMMAS
-    pass
+    # Remove Commas?
+    vector_sum = np.zeros_like(get_vector("the"))
+    text = text.translate(None, string.punctuation)
+    for n, word in enumerate(text.split(" ")):
+        word = word.strip()
+        print "\n"+word+"\n"
+        print get_vector(word).shape
+        vector_sum += get_vector(word)
+    return vector_sum / float(n)
 
 
 def train_review(text, label):
@@ -131,4 +141,5 @@ def train():
     test_data_p = FLAGS.test_data_path + "/pos"
     test_data_n = FLAGS.test_data_path + "/neg"
     # TODO: init session and train then test
+
 
